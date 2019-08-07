@@ -120,7 +120,7 @@ async function handleLinter (
       const m = str.match(new RegExp(formatPattern[0]))
       if (m) {
         const {file, line, column, message, security } = formatPattern[1];
-        /* if (file && m[file] === path.relative(workDir, fpath)) { */
+        if (!file || m[file] === path.relative(workDir, fpath)) {
           let diagnostic: Diagnostic = {
             severity: getSecurity(securities[m[security]]),
             range: {
@@ -138,7 +138,7 @@ async function handleLinter (
             source: sourceName
           };
           diagnostics.push(diagnostic);
-        /* } */
+        }
       }
       str = lines.shift()
     }

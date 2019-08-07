@@ -33,8 +33,17 @@ export function executeFile(
         notUsePip = true
         return arg.replace(/%text/g, input.toString())
       }
+      if (/%relativedir/.test(arg)) {
+        return arg.replace(
+          /%relativedir/g,
+          path.dirname(path.relative(workDir, fpath))
+        );
+      }
       if (/%filename/.test(arg)) {
         return arg.replace(/%filename/g, path.basename(fpath))
+      }
+      if (/%dir/.test(arg)) {
+        return arg.replace(/%dir/g, path.dirname(fpath))
       }
       if (/%file/.test(arg)) {
         notUsePip = true
