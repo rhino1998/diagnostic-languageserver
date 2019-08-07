@@ -14,6 +14,7 @@ export interface ILinterConfig {
   sourceName: string
   formatLines?: number
   formatPattern: [string, {
+    file?: number,
     line: number,
     column: number,
     message: Array<number|string> | number,

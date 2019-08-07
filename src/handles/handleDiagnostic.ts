@@ -87,6 +87,8 @@ async function handleLinter (
       VscUri.parse(textDocument.uri).path,
       rootPatterns,
     )
+    const fpath = VscUri.parse(textDocument.uri).path
+
     const cmd = await findCommand(command, workDir)
     const {
       stdout = '',
@@ -94,6 +96,7 @@ async function handleLinter (
     } = await executeFile(
       new HunkStream(text),
       textDocument,
+      workDir,
       cmd,
       args,
       {
@@ -116,24 +119,26 @@ async function handleLinter (
       str = [str].concat(lines.slice(0, formatLines - 1)).join('\n')
       const m = str.match(new RegExp(formatPattern[0]))
       if (m) {
-        const { line, column, message, security } = formatPattern[1]
-        let diagnostic: Diagnostic = {
-          severity: getSecurity(securities[m[security]]),
-          range: {
-            start: {
-              // line and character is base zero so need -1
-              line: sumNum(m[line], -1, offsetLine),
-              character: sumNum(m[column], -1, offsetColumn)
+        const {file, line, column, message, security } = formatPattern[1];
+        /* if (file && m[file] === path.relative(workDir, fpath)) { */
+          let diagnostic: Diagnostic = {
+            severity: getSecurity(securities[m[security]]),
+            range: {
+              start: {
+                // line and character is base zero so need -1
+                line: sumNum(m[line], -1, offsetLine),
+                character: sumNum(m[column], -1, offsetColumn)
+              },
+              end: {
+                line: sumNum(m[line], -1, offsetLine),
+                character: sumNum(m[column], offsetColumn)
+              }
             },
-            end: {
-              line: sumNum(m[line], -1, offsetLine),
-              character: sumNum(m[column], offsetColumn)
-            }
-          },
-          message: formatMessage(message, m),
-          source: sourceName
-        };
-        diagnostics.push(diagnostic);
+            message: `${m[file]} ${path.relative(workDir,fpath)} ${formatMessage(message,m)}`,
+            source: sourceName
+          };
+          diagnostics.push(diagnostic);
+        /* } */
       }
       str = lines.shift()
     }

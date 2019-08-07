@@ -11,6 +11,7 @@ import { SpawnOptions, spawn } from 'child_process';
 export function executeFile(
   input: Readable,
   textDocument: TextDocument,
+  workDir: string,
   command: string,
   args?: any[],
   option?: SpawnOptions
